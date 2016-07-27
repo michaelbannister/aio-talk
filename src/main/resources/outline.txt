@@ -1,0 +1,23 @@
+Create an API with Vert.x (here's one I made earlier)
+Check its throughput (using 1 CPU)
+Profile #threads, memory
+
+Create a web front-end using Jetty which calls the API (set threadpool to 1)
+Check its throughput
+Profile #threads, memory
+
+Make the API slower
+Check its throughput - still OK
+Profile #threads, memory
+
+Check the web front-end throughput - not OK!
+Increase the web front-end number of threads - still not OK
+Profile #threads, memory
+
+Replace the web front-end with Vert.x
+Check its throughput - OK
+Profile #threads, memory
+
+Describe tradeoffs:
+    code complexity
+    OS resources

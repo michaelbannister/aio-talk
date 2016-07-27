@@ -1,11 +1,10 @@
 buildscript {
-  dependencies {
-    classpath 'com.github.jengelman.gradle.plugins:shadow:1.2.3'
-  }
   repositories {
     jcenter()
   }
 }
+
+ext.vertx_version = '3.3.1'
 
 allprojects {
   apply plugin: 'java'
@@ -19,31 +18,8 @@ allprojects {
   sourceCompatibility = '1.8'
 }
 
-apply plugin: 'application'
-apply plugin: 'com.github.johnrengelman.shadow'
-
-mainClassName = 'io.vertx.core.Launcher'
-
-ext.vertx_version = '3.3.1'
-
 dependencies {
   compile "io.vertx:vertx-core:$vertx_version"
   compile "io.vertx:vertx-web:$vertx_version"
   compile 'org.apache.commons:commons-lang3:3.4'
-  testCompile "io.vertx:vertx-unit:$vertx_version"
-  testCompile 'junit:junit:4.12'
-  testCompile 'org.assertj:assertj-core:3.5.2'
 }
-
-shadowJar {
-  classifier = 'fat'
-  manifest {
-    attributes 'Main-Verticle': 'uk.co.michaelbannister.aio.XYZ'
-  }
-  mergeServiceFiles {
-    include 'META-INF/services/io.vertx.core.spi.VerticleFactory'
-  }
-}
-
-build.dependsOn shadowJar
-
