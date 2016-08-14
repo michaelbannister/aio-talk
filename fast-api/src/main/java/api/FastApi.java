@@ -11,6 +11,8 @@ public class FastApi extends AbstractVerticle {
         Launcher.executeCommand("run", FastApi.class.getCanonicalName());
     }
 
+    private static final int PORT = 8500;
+
     @Override
     public void start() throws Exception {
         vertx.createHttpServer()
@@ -20,14 +22,14 @@ public class FastApi extends AbstractVerticle {
                         .putHeader("Content-Type", "text/plain")
                         .end("HELLO!");
              })
-             .listen(8500, this::listenHandler);
+             .listen(PORT, this::listenHandler);
     }
 
     private void listenHandler(AsyncResult<HttpServer> result) {
         if (result.succeeded()) {
-            System.out.println("RemoteApi listening on port 8500");
+            System.out.println("FastApi listening on port " + PORT);
         } else {
-            System.err.println("RemoteApi failed to start listening on port 8500");
+            System.err.println("FastApi failed to start listening on port " + PORT);
             result.cause().printStackTrace();
             vertx.close();
         }

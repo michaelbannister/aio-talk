@@ -6,7 +6,7 @@ buildscript {
 
 ext.vertx_version = '3.3.1'
 
-allprojects {
+subprojects {
   apply plugin: 'java'
 
   repositories {
@@ -14,12 +14,6 @@ allprojects {
   }
   
   group 'uk.co.michaelbannister'
-  version '1.0-SNAPSHOT'
+  version '0.1'
   sourceCompatibility = '1.8'
-}
-
-dependencies {
-  compile "io.vertx:vertx-core:$vertx_version"
-  compile "io.vertx:vertx-web:$vertx_version"
-  compile 'org.apache.commons:commons-lang3:3.4'
 }

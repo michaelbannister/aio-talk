@@ -11,25 +11,29 @@ public class SlowApi extends AbstractVerticle {
         Launcher.executeCommand("run", SlowApi.class.getCanonicalName());
     }
 
+    private static final int PORT = 8501;
+    
     @Override
     public void start() throws Exception {
+        int delayMillis = Integer.getInteger("delay", 2000);
+
         vertx.createHttpServer()
              .requestHandler(request -> {
-                 vertx.setTimer(2000, (h) -> {
+                 vertx.setTimer(delayMillis , (h) -> {
                      request.response()
                             .setStatusCode(200)
                             .putHeader("Content-Type", "text/plain")
                             .end("HELLO!");
                  });
              })
-             .listen(8500, this::listenHandler);
+             .listen(PORT, this::listenHandler);
     }
 
     private void listenHandler(AsyncResult<HttpServer> result) {
         if (result.succeeded()) {
-            System.out.println("RemoteApi listening on port 8500");
+            System.out.println("SlowApi listening on port " + PORT);
         } else {
-            System.err.println("RemoteApi failed to start listening on port 8500");
+            System.err.println("SlowApi failed to start listening on port " + PORT);
             result.cause().printStackTrace();
             vertx.close();
         }

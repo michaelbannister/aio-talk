@@ -1,20 +1,20 @@
 package aio
 
-import scala.concurrent.duration._
-
 import io.gatling.core.Predef._
 import io.gatling.http.Predef._
 
-class ApiDirectSimulation extends Simulation {
+import scala.concurrent.duration._
+
+class WebsiteSimulation extends Simulation {
   val requestsPerSecond = System.getProperty("rps", "100").toDouble
-  val port = System.getProperty("port", "8500")
+  val port = System.getProperty("port", "8080")
 
   val httpConf = http
     .baseURL("http://localhost:" + port)
     .acceptHeader("text/html")
     .shareConnections
 
-  val scn = scenario("ApiDirect")
+  val scn = scenario("WebsiteSimulation")
     .exec(http("simple_request").get("/"))
 
   setUp(

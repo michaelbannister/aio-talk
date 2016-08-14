@@ -1,4 +1,4 @@
-include 'fast-api', 'slow-api', 'perf-test'
+include 'fast-api', 'slow-api', 'perf-test', 'spring-site'
 
 rootProject.children.each {
   it.buildFileName = "${it.name}.gradle"
