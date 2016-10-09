@@ -1,3 +1,21 @@
+Setup htop:
+PID
+USER
+NLWP
+M_RESIDENT
+M_SHARE
+PERCENT_CPU
+PERCENT_MEM
+UTIME
+STIME
+Command
+
+Setup /etc/security/limits.conf:
+* soft nproc  10000
+* soft nofile 20000
+* hard nofile 20000
+
+
 Create an API with Vert.x (here's one I made earlier)
 Check its throughput (using 1 CPU)
 Profile #threads, memory

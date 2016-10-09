@@ -5,8 +5,9 @@ import scala.concurrent.duration._
 import io.gatling.core.Predef._
 import io.gatling.http.Predef._
 
-class ApiDirectSimulation extends Simulation {
+class HammerIt extends Simulation {
   val requestsPerSecond = System.getProperty("rps", "100").toDouble
+  val duration = System.getProperty("duration", "30").toDouble
   val port = System.getProperty("port", "8500")
 
   val httpConf = http
@@ -14,12 +15,12 @@ class ApiDirectSimulation extends Simulation {
     .acceptHeader("text/html")
     .shareConnections
 
-  val scn = scenario("ApiDirect")
+  val scn = scenario("HammerIt")
     .exec(http("simple_request").get("/"))
 
   setUp(
     scn.inject(
-      constantUsersPerSec(requestsPerSecond) during (30 seconds)
+      constantUsersPerSec(requestsPerSecond) during (duration seconds)
     )
     .protocols(httpConf)
   )

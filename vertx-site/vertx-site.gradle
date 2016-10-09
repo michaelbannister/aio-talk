@@ -5,6 +5,8 @@ plugins {
 
 dependencies {
   compile "io.vertx:vertx-core:$vertx_version"
+  compile "io.vertx:vertx-web:$vertx_version"
+  compile "io.vertx:vertx-web-templ-handlebars:$vertx_version"
 }
 
 mainClassName = 'io.vertx.core.Launcher'
@@ -13,7 +15,7 @@ jar.enabled = false
 shadowJar {
   classifier = null
   manifest {
-    attributes 'Main-Verticle': 'api.FastApi'
+    attributes 'Main-Verticle': 'site.VertxSite'
   }
   mergeServiceFiles {
     include 'META-INF/services/io.vertx.core.spi.VerticleFactory'

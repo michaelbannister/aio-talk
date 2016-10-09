@@ -15,7 +15,7 @@ public class SlowApi extends AbstractVerticle {
     
     @Override
     public void start() throws Exception {
-        int delayMillis = Integer.getInteger("delay", 2000);
+        int delayMillis = Integer.getInteger("delay", 5000);
 
         vertx.createHttpServer()
              .requestHandler(request -> {

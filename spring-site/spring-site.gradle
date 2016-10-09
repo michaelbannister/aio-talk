@@ -14,7 +14,7 @@ apply plugin: 'spring-boot'
 
 jar {
 	baseName = 'spring-site'
-	version = '0.0.1-SNAPSHOT'
+	version = null
 }
 
 dependencies {

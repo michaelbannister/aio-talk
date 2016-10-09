@@ -12,8 +12,9 @@ mainClassName = 'io.vertx.core.Launcher'
 jar.enabled = false
 shadowJar {
   classifier = null
+  version = null
   manifest {
-    attributes 'Main-Verticle': 'api.SlowApi'
+    attributes 'Main-Verticle': 'api.ApiMain'
   }
   mergeServiceFiles {
     include 'META-INF/services/io.vertx.core.spi.VerticleFactory'
