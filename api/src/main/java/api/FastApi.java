@@ -4,6 +4,7 @@ import io.vertx.core.AbstractVerticle;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Launcher;
 import io.vertx.core.http.HttpServer;
+import io.vertx.core.json.JsonObject;
 
 public class FastApi extends AbstractVerticle {
 
@@ -19,8 +20,8 @@ public class FastApi extends AbstractVerticle {
              .requestHandler(request -> {
                  request.response()
                         .setStatusCode(200)
-                        .putHeader("Content-Type", "text/plain")
-                        .end("HELLO!");
+                        .putHeader("Content-Type", "application/json")
+                        .end(new JsonObject().put("message", "HELLO!").toString());
              })
              .listen(PORT, this::listenHandler);
     }

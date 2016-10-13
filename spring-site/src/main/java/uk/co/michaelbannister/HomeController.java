@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.client.RestTemplate;
 
 import java.net.URI;
+import java.util.Map;
 
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
 
@@ -26,9 +27,10 @@ public class HomeController {
 
     @RequestMapping(method = GET, path = "/")
     public String home(Model model) {
-        ResponseEntity<String> response = rest.getForEntity("/", String.class);
+        ResponseEntity<Map> response = rest.getForEntity("/", Map.class);
+        
         if (response.getStatusCode().is2xxSuccessful()) {
-            model.addAttribute("greeting", response.getBody());
+            model.addAttribute("greeting", response.getBody().get("message"));
             return "home";
         } else {
             throw new ApiCallFailedException(response.getStatusCode());
