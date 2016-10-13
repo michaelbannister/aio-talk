@@ -1,9 +1,7 @@
-package aio
-
-import scala.concurrent.duration._
-
 import io.gatling.core.Predef._
 import io.gatling.http.Predef._
+
+import scala.concurrent.duration._
 
 class HammerIt extends Simulation {
   val requestsPerSecond = System.getProperty("rps", "100").toDouble
