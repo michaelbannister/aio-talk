@@ -20,6 +20,8 @@ public class VertxSite extends AbstractVerticle {
 
     @Override
     public void start(Future<Void> startup) throws Exception {
+        int port = Integer.getInteger("server.port", 8080);
+
         hbsEngine = HandlebarsTemplateEngine.create();
         client = vertx.createHttpClient(new HttpClientOptions()
                 .setDefaultHost("localhost")
@@ -31,9 +33,9 @@ public class VertxSite extends AbstractVerticle {
 
         vertx.createHttpServer()
              .requestHandler(router::accept)
-             .listen(8080, res -> {
+             .listen(port, res -> {
                  if (res.failed()) {
-                     System.err.print("Failed to listen on port 8080");
+                     System.err.print("Failed to listen on port " + port);
                      startup.fail(res.cause());
                  } else {
                      startup.complete();
@@ -44,7 +46,6 @@ public class VertxSite extends AbstractVerticle {
     private Router configureRouter() {
         Router router = Router.router(vertx);
         router.route().handler(this::getGreeting);
-        router.route().handler(this::renderHome);
         router.exceptionHandler(vertx.exceptionHandler());
         return router;
     }
@@ -53,22 +54,19 @@ public class VertxSite extends AbstractVerticle {
         client.getNow("/", resp -> {
             if (resp.statusCode() == 200) {
                 resp.bodyHandler(body -> {
-                    context.data().put("greeting", body.toString());
-                    context.next();
+                    String message = body.toJsonObject().getString("message");
+                    context.data().put("greeting", message);
+                    hbsEngine.render(context, "templates/home", res -> {
+                        if (res.succeeded()) {
+                            context.response().putHeader("Content-Type", "text/html;charset=UTF-8");
+                            context.response().end(res.result());
+                        } else {
+                            context.fail(res.cause());
+                        }
+                    });
                 });
             } else {
                 context.fail(resp.statusCode());
-            }
-        });
-    }
-
-    private void renderHome(RoutingContext context) {
-        hbsEngine.render(context, "templates/home", res -> {
-            if (res.succeeded()) {
-                context.response().putHeader("Content-Type", "text/html;charset=UTF-8");
-                context.response().end(res.result());
-            } else {
-                context.fail(res.cause());
             }
         });
     }
