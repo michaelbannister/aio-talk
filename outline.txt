@@ -1,41 +1,94 @@
-Setup htop:
-PID
-USER
-NLWP
-M_RESIDENT
-M_SHARE
-PERCENT_CPU
-PERCENT_MEM
-UTIME
-STIME
-Command
+Setup:
+> java -jar api/build/libs/api.jar
+> java -jar -Dapi.port=8500 -Dserver.tomcat.maxThreads=100 spring-site/build/libs/spring-site.jar
 
-Setup /etc/security/limits.conf:
-* soft nproc  10000
-* soft nofile 20000
-* hard nofile 20000
+I'm going to explain:
+ * what is meant by the Thread-per-request and Reactor patterns of concurrency
+ * what is nonblocking I/O and how it fits into the Reactor pattern
+ * why you might choose the Reactor pattern over Thread-per-request
 
+But first... an example.
 
-Create an API with Vert.x (here's one I made earlier)
-Check its throughput (using 1 CPU)
-Profile #threads, memory
+Suppose we have an API which returns a message:
+> http GET localhost:8500
 
-Create a web front-end using Jetty which calls the API (set threadpool to 1)
-Check its throughput
-Profile #threads, memory
+And we have a webpage that calls the API to get the message and then displays it in an HTML page:
+> http GET localhost:8080
+> firefox localhost:8080
 
-Make the API slower
-Check its throughput - still OK
-Profile #threads, memory
+The API can easily handle 1000rps:
+> ./gradlew gatling-HammerIt -Dport=8500 -Drps=1000
+(all responses < 800ms)
 
-Check the web front-end throughput - not OK!
-Increase the web front-end number of threads - still not OK
-Profile #threads, memory
+The website can also handle 1000rps but with more variance in response time.
+Sometimes we see failed requests:
+> ./gradlew gatling-HammerIt -Dport=8080 -Drps=1000
+(many responses > 1s, maybe some failures)
 
-Replace the web front-end with Vert.x
-Check its throughput - OK
-Profile #threads, memory
+> Open report in firefox
 
-Describe tradeoffs:
-    code complexity
-    OS resources
+We can see from the graph that the waiting requests were backing up.
+What was going on inside?
+
+=====
+
+client ---> website ---> API
+
+This website application is using Tomcat, which uses the Thread-per-request pattern.
+
+What's a thread?
+  A thread is a unit of concurrency managed by the operating system. Multiple threads
+  can run truly in parallel on multiple CPUs or cores.
+
+Request per thread - a new thread for each request?
+  No, each one uses memory, takes time to create and adds overhead to the scheduler
+  So we have a thread pool [EXPLAIN]
+
+Current thread pool size is 100. See the resting thread count:
+> htop
+[EXPLAIN HTOP]
+and see what happens to threads, memory & CPU when we hammer the site again:
+> ./gradlew gatling-HammerIt -Dport=8080 -Drps=1000
+
+Increasing size of the thread pool => more concurrent requests
+BUT more memory usage and more scheduler CPU overhead
+  => less of the CPU's time running the actual program
+
+> java -jar -Dapi.port=8500 -Dserver.tomcat.maxThreads=1000 spring-site/build/libs/spring-site.jar
+> ./gradlew gatling-HammerIt -Dport=8080 -Drps=1000
+(watch htop)
+
+Better - but not perfect. We can give it more CPUs, more memory, more threads.
+
+=====
+
+What about when the API runs slow?
+
+> http GET localhost:8501
+
+The API can easily handle 1000rps, but the responses take 5s:
+> ./gradlew gatling-HammerIt -Dport=8501 -Drps=1000
+
+Let's hook up our website to this slow API:
+> java -jar -Dapi.port=8501 -Dserver.tomcat.maxThreads=1000 spring-site/build/libs/spring-site.jar
+
+Shambles.
+
+=====
+
+Instead of a thread sitting waiting for a response you could ask the system to call back when it's done
+This is nonblocking I/O and it's made possible by Java AIO library knowing how to ask the OS to do this.
+EXPLAIN Reactor model
+
+Here is an alternative website using Vert.x which uses this pattern
+> java -jar -Dapi.port=8501 vertx-site/build/libs/vertx-site.jar
+
+> ./gradlew gatling-HammerIt -Dport=8080 -Drps=1000
+
+Uses more CPU but less memory... but succeeds!
+
+=====
+
+So why don't we just do everything this way?
+
+Quick look at code
