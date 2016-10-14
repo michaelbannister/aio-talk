@@ -1,4 +1,4 @@
-package uk.co.michaelbannister;
+package site;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
