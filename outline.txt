@@ -38,7 +38,7 @@ This website application is using Tomcat, which uses the Thread-per-request patt
 
 What's a thread?
   A thread is a unit of concurrency managed by the operating system. Multiple threads
-  can run truly in parallel on multiple CPUs or cores.
+  can run truly in parallel on multiple CPUs or cores. Timeslicing.
 
 Request per thread - a new thread for each request?
   No, each one uses memory, takes time to create and adds overhead to the scheduler
@@ -72,12 +72,17 @@ The API can easily handle 1000rps, but the responses take 5s:
 Let's hook up our website to this slow API:
 > java -jar -Dapi.port=8501 -Dserver.tomcat.maxThreads=1000 spring-site/build/libs/spring-site.jar
 
-Shambles.
+Shambles. Why?
+
+Let's have a quick look at the implementation.
+> vim spring-site/src/main/java/site/HomeController.java
+[DESCRIBE HOW THE THREAD BLOCKS ON THE API CALL]
 
 =====
 
-Instead of a thread sitting waiting for a response you could ask the system to call back when it's done
-This is nonblocking I/O and it's made possible by Java AIO library knowing how to ask the OS to do this.
+Instead of a thread sitting waiting for a response you could ask the system to call back when it's done,
+and release the thread to handle other requests.
+This is nonblocking I/O and it's made possible by the Java AIO library knowing how to ask the OS to do this.
 EXPLAIN Reactor model
 
 Here is an alternative website using Vert.x which uses this pattern
@@ -91,4 +96,5 @@ Uses more CPU but less memory... but succeeds!
 
 So why don't we just do everything this way?
 
-Quick look at code
+> vim vertx-site/src/main/java/site/HomeHandler.java
+[CODE COMPLEXITY, EASE OF UNDERSTANDING]
