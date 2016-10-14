@@ -6,8 +6,9 @@ import io.vertx.core.Launcher;
 import io.vertx.core.http.HttpClient;
 import io.vertx.core.http.HttpClientOptions;
 import io.vertx.ext.web.Router;
-import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.templ.HandlebarsTemplateEngine;
+
+import static io.vertx.core.http.HttpMethod.GET;
 
 public class VertxSite extends AbstractVerticle {
 
@@ -29,9 +30,12 @@ public class VertxSite extends AbstractVerticle {
                 .setKeepAlive(false)
                 .setMaxPoolSize(5000));
 
+        HomeHandler homeHandler = new HomeHandler(client, hbsEngine);
+
         Router router = Router.router(vertx);
-        router.route().handler(this::getGreeting);
         router.exceptionHandler(vertx.exceptionHandler());
+
+        router.route(GET, "/").handler(homeHandler::get);
 
         vertx.createHttpServer()
              .requestHandler(router::accept)
@@ -45,24 +49,4 @@ public class VertxSite extends AbstractVerticle {
              });
     }
 
-    private void getGreeting(RoutingContext context) {
-        client.getNow("/", resp -> {
-            if (resp.statusCode() == 200) {
-                resp.bodyHandler(body -> {
-                    String message = body.toJsonObject().getString("message");
-                    context.data().put("greeting", message);
-                    hbsEngine.render(context, "templates/home", res -> {
-                        if (res.succeeded()) {
-                            context.response().putHeader("Content-Type", "text/html;charset=UTF-8");
-                            context.response().end(res.result());
-                        } else {
-                            context.fail(res.cause());
-                        }
-                    });
-                });
-            } else {
-                context.fail(resp.statusCode());
-            }
-        });
-    }
 }
