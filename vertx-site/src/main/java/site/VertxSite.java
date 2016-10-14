@@ -29,7 +29,9 @@ public class VertxSite extends AbstractVerticle {
                 .setKeepAlive(false)
                 .setMaxPoolSize(5000));
 
-        Router router = configureRouter();
+        Router router = Router.router(vertx);
+        router.route().handler(this::getGreeting);
+        router.exceptionHandler(vertx.exceptionHandler());
 
         vertx.createHttpServer()
              .requestHandler(router::accept)
@@ -41,13 +43,6 @@ public class VertxSite extends AbstractVerticle {
                      startup.complete();
                  }
              });
-    }
-
-    private Router configureRouter() {
-        Router router = Router.router(vertx);
-        router.route().handler(this::getGreeting);
-        router.exceptionHandler(vertx.exceptionHandler());
-        return router;
     }
 
     private void getGreeting(RoutingContext context) {
